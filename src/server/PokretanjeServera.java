@@ -7,8 +7,6 @@ package server;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -17,6 +15,7 @@ import java.util.logging.Logger;
 public class PokretanjeServera extends Thread{
     FrmServer s;
     ServerSocket ss = null;
+    volatile boolean pokrenuto = true;
     
     
     public PokretanjeServera(FrmServer s){
@@ -29,39 +28,45 @@ public class PokretanjeServera extends Thread{
         try {
             ss = new ServerSocket(9000);
             s.pokrenut();
-            while(true){
-                Socket socket = ss.accept();
-                System.out.println("Klijent se povezao");
-                s.prijavljenKorisnik();
-                //ovde ce biti obrada podataka
-                ObradaZahteva o = new ObradaZahteva(socket, s);
-                o.start();
+            while(pokrenuto){
+                try {
+                    Socket socket = ss.accept();
+                    System.out.println("Klijent se povezao");
+                    s.prijavljenKorisnik();
+                    //ovde ce biti obrada podataka
+                    ObradaZahteva o = new ObradaZahteva(socket, s);
+                    o.start();
+                } catch (IOException e) {
+                    if(!pokrenuto){
+                        System.out.println("Greska pri prihvatanju konekcije");
+                    }else{
+                        System.out.println("Server socket je zatvoren!");
+                    }
+                }
             }
         } catch (IOException ex) {
+            System.out.println("Greska pri pokretanju servera");
             s.zaustavljen();
-//            Logger.getLogger(PokretanjeServera.class.getName()).log(Level.SEVERE, null, ex);}
+        }finally {
+            if (ss != null && !ss.isClosed()) {
+                try {
+                    ss.close();
+                } catch (IOException e) {
+                    System.out.println("Greska pri zatvaranju ServerSocket-a" + e.getMessage());
+                }
+            }
+            s.nijePokrenut();
+            s.nemaKorisnika();
         }
-//        }finally {
-//            if (ss != null && !ss.isClosed()) {
-//                try {
-//                    ss.close();
-//                    s.nijePokrenut();
-//                    s.nemaKorisnika();
-//                } catch (IOException e) {
-//                    Logger.getLogger(PokretanjeServera.class.getName()).log(Level.SEVERE, "Greška pri zatvaranju server socket-a", e);
-//                }
-//            }
-//        }
     }
     public void stopServer(){
-        if(ss != null){
-            try {
-                ss.close();
-                ss = null;
-            } catch (IOException ex) {
-                System.out.println("Neuspesno zatvaranje porta");
-            }
+        pokrenuto = false;
+        try {
+            new Socket("localhost", 9000).close();
+        } catch (IOException ex) {
+            
         }
     }
+    
     
 }

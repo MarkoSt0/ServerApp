@@ -17,6 +17,8 @@ public class FrmServer extends javax.swing.JFrame {
      */
     public FrmServer() {
         initComponents();
+        lblBall1.setVisible(false);
+        this.setLocationRelativeTo(null);
     }
 
     /**
@@ -33,8 +35,13 @@ public class FrmServer extends javax.swing.JFrame {
         lblServer = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         lblKorisnik = new javax.swing.JLabel();
-        jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
+        btnZaustaviServer = new javax.swing.JButton();
+        btnPokreniServer = new javax.swing.JButton();
+        lblPokrenut = new javax.swing.JLabel();
+        lblNijePokrenut = new javax.swing.JLabel();
+        lblBall1 = new javax.swing.JLabel();
+        lblBall2 = new javax.swing.JLabel();
+        jSeparator1 = new javax.swing.JSeparator();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -49,19 +56,35 @@ public class FrmServer extends javax.swing.JFrame {
 
         lblKorisnik.setText("Ne");
 
-        jButton1.setText("Zaustavi server");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        btnZaustaviServer.setText("Zaustavi server");
+        btnZaustaviServer.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                btnZaustaviServerActionPerformed(evt);
             }
         });
 
-        jButton2.setText("Pokreni server");
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
+        btnPokreniServer.setText("Pokreni server");
+        btnPokreniServer.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
+                btnPokreniServerActionPerformed(evt);
             }
         });
+
+        lblPokrenut.setFont(new java.awt.Font("SansSerif", 0, 16)); // NOI18N
+        lblPokrenut.setText("Server je pokrenut");
+
+        lblNijePokrenut.setFont(new java.awt.Font("SansSerif", 0, 16)); // NOI18N
+        lblNijePokrenut.setText("Server nije pokrenut");
+
+        lblBall1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/src/slike/tennisball.png"))); // NOI18N
+        lblBall1.setMaximumSize(new java.awt.Dimension(16, 16));
+        lblBall1.setMinimumSize(new java.awt.Dimension(16, 16));
+        lblBall1.setPreferredSize(new java.awt.Dimension(16, 16));
+
+        lblBall2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/slike/tennisball.png"))); // NOI18N
+        lblBall2.setMaximumSize(new java.awt.Dimension(16, 16));
+        lblBall2.setMinimumSize(new java.awt.Dimension(16, 16));
+        lblBall2.setPreferredSize(new java.awt.Dimension(16, 16));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -75,18 +98,33 @@ public class FrmServer extends javax.swing.JFrame {
                     .addGroup(layout.createSequentialGroup()
                         .addGap(27, 27, 27)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel3)
-                            .addComponent(jLabel2))
-                        .addGap(18, 18, 18)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(lblKorisnik)
-                            .addComponent(lblServer))))
-                .addContainerGap(169, Short.MAX_VALUE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel3)
+                                    .addComponent(jLabel2))
+                                .addGap(61, 61, 61)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(lblKorisnik)
+                                    .addComponent(lblServer)))
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                .addComponent(jSeparator1)
+                                .addGroup(layout.createSequentialGroup()
+                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addComponent(lblPokrenut)
+                                        .addComponent(lblNijePokrenut))
+                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addGroup(layout.createSequentialGroup()
+                                            .addGap(29, 29, 29)
+                                            .addComponent(lblBall1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                        .addGroup(layout.createSequentialGroup()
+                                            .addGap(29, 29, 29)
+                                            .addComponent(lblBall2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))))))
+                .addContainerGap(191, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addGap(0, 0, Short.MAX_VALUE)
-                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 111, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(btnZaustaviServer, javax.swing.GroupLayout.PREFERRED_SIZE, 111, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
-                .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 111, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(btnPokreniServer, javax.swing.GroupLayout.PREFERRED_SIZE, 111, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(28, 28, 28))
         );
         layout.setVerticalGroup(
@@ -105,34 +143,60 @@ public class FrmServer extends javax.swing.JFrame {
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(lblServer)
                         .addGap(28, 28, 28)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 48, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton2)
-                    .addComponent(jButton1))
-                .addGap(21, 21, 21))
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(lblPokrenut)
+                    .addComponent(lblBall1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 22, Short.MAX_VALUE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(btnPokreniServer)
+                            .addComponent(btnZaustaviServer))
+                        .addGap(21, 21, 21))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(lblBall2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(lblNijePokrenut))
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        ps = new PokretanjeServera(this);
-        ps.start();
-        lblServer.setForeground(Color.green);
+    private void btnPokreniServerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPokreniServerActionPerformed
+        if(ps == null || !ps.isAlive()){
+            ps = new PokretanjeServera(this);
+            ps.start();
+    //        lblServer.setForeground(Color.green);
+            lblPokrenut.setBackground(Color.LIGHT_GRAY);
+            lblNijePokrenut.setBackground(Color.DARK_GRAY);
+            lblBall1.setVisible(true);
+            lblBall2.setVisible(false);
+        }
         
         
         
         
-    }//GEN-LAST:event_jButton2ActionPerformed
+    }//GEN-LAST:event_btnPokreniServerActionPerformed
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+    private void btnZaustaviServerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnZaustaviServerActionPerformed
         if(ps != null){
             ps.stopServer();
-            lblServer.setForeground(Color.red);
+            ps = null;
+//            lblServer.setForeground(Color.red);s
+            lblPokrenut.setBackground(Color.DARK_GRAY);
+            lblNijePokrenut.setBackground(Color.LIGHT_GRAY);
+            lblBall1.setVisible(false);
+            lblBall2.setVisible(true);
         }
             
         
-    }//GEN-LAST:event_jButton1ActionPerformed
+    }//GEN-LAST:event_btnZaustaviServerActionPerformed
 
     /**
      * @param args the command line arguments
@@ -169,12 +233,17 @@ public class FrmServer extends javax.swing.JFrame {
         });
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
+    private javax.swing.JButton btnPokreniServer;
+    private javax.swing.JButton btnZaustaviServer;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JSeparator jSeparator1;
+    private javax.swing.JLabel lblBall1;
+    private javax.swing.JLabel lblBall2;
     private javax.swing.JLabel lblKorisnik;
+    private javax.swing.JLabel lblNijePokrenut;
+    private javax.swing.JLabel lblPokrenut;
     private javax.swing.JLabel lblServer;
     // End of variables declaration//GEN-END:variables
 

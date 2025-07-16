@@ -1,9 +1,6 @@
 package db;
-import domain.Korisnik;
-import domain.Licenca;
 import domain.OpstaKlasa;
 import domain.Radnik;
-import domain.Rezervacija;
 import domain.StavkaRezervacije;
 import domain.TeniskiKlub;
 import domain.Teren;
@@ -71,33 +68,10 @@ public class DatabaseBroker {
         }
     }
     
-    public boolean postojiKorisnik(Korisnik korisnik) throws SQLException{
-        try {
-            String upit = "SELECT * FROM korisnik WHERE mail = '" + korisnik.getMail().trim() + "'";
-            Statement st = connection.createStatement();
-            ResultSet rs = st.executeQuery(upit);
-            if(rs.next()){
-                return true;
-            }else 
-                return false;
-        } catch (SQLException e) {
-            throw e;
-        }
-    }
     public List<OpstaKlasa> ucitajIzBaze(OpstaKlasa opsti) throws SQLException {
         List<OpstaKlasa> lista = new ArrayList<>();
         try {
-            String upit;
-            if(opsti instanceof StavkaRezervacije){
-                StavkaRezervacije sr = (StavkaRezervacije) opsti;
-                if(sr.getDatum() != null){
-                    upit = sr.posebanUpitZaUcitavanjeProslih(sr.getDatum());
-                }else{
-                    upit = sr.posebanUpitZaUcitavanjeBuducih();
-                }
-            }else{
-                upit = "SELECT * FROM " + opsti.vratiNazivKlase();
-            }
+            String upit = opsti.vratiUpitZaUcitavanje();
             Statement st = connection.createStatement();
             ResultSet rs = st.executeQuery(upit);
             while(rs.next()){
@@ -111,37 +85,22 @@ public class DatabaseBroker {
             throw ex;
         }
     }
+    
     public Object kreiraj(OpstaKlasa opsti) throws SQLException {
-        String upit = "INSERT INTO " + opsti.vratiNazivKlase() + "(" + opsti.vratiNaziveAtributa() + 
-                      ") VALUES (" + opsti.vratiVrednostiAtributa() + ")";
+        String upit = opsti.vratiUpitZaKreiranje();
 
         try (PreparedStatement st = connection.prepareStatement(upit, Statement.RETURN_GENERATED_KEYS)) {
             st.executeUpdate();
             connection.commit();
             System.out.println("Objekat je uspesno ucitan u bazu!");
 
-            if (opsti instanceof Rezervacija) {
-                try (ResultSet rs = st.getGeneratedKeys()) {
-                    Rezervacija r = (Rezervacija) opsti;
-                    if (rs.next()) {
-                        r.setIdRezervacija(rs.getLong(1));
-                    }
-                    System.out.println("Nova rezervacija je uspesno kreirana i nosi broj: " + r.getIdRezervacija());
-                    return r;
-                }
-            }
-            if(opsti instanceof Licenca){
-                try (ResultSet rs = st.getGeneratedKeys()) {
-                    Licenca l = (Licenca) opsti;
-                    if (rs.next()) {
-                        l.setIdLicenca(rs.getLong(1));
-                    }
-                    System.out.println("Nova licenca je uspesno kreirana i nosi broj: " + l.getIdLicenca());
-                    return l;
+            try (ResultSet rs = st.getGeneratedKeys()) {
+                if (rs.next()) {
+                    opsti.postaviGenerisaniKljuc(rs.getLong(1));
+                    return opsti;
                 }
             }
             return true;
-
         } catch (SQLIntegrityConstraintViolationException e) {
             if (e.getMessage().contains("Duplicate entry")) {
                 System.out.println("Objekat vec postoji!");
@@ -153,44 +112,9 @@ public class DatabaseBroker {
         }
     }
     
-//    public Object kreiraj(OpstaKlasa opsti) throws SQLException {
-//        try {
-//            String upit = "INSERT INTO " + opsti.vratiNazivKlase() + "(" + 
-//                    opsti.vratiNaziveAtributa() + ") VALUES (" + opsti.vratiVrednostiAtributa() + ")";
-//            PreparedStatement st = connection.prepareStatement(upit, Statement.RETURN_GENERATED_KEYS);
-//            st.executeUpdate();
-//            connection.commit();
-//            System.out.println("Objekat je uspesno ucitan u bazu!");
-//            if(opsti instanceof Rezervacija){
-//                ResultSet rs = st.getGeneratedKeys();
-//                Rezervacija r = (Rezervacija) opsti;
-//                if(rs.next()){
-//                    r.setIdRezervacija(rs.getLong(1));
-//                }
-//                System.out.println("Nova rezervacija je uspesno kreirana i nosi broj: " + r.getIdRezervacija());
-//                return r;
-//            }
-//            return true;
-//        }catch (SQLIntegrityConstraintViolationException e) {
-//            if(e.getMessage().contains("Duplicate entry")){
-//                System.out.println("Objekat vec postoji!");
-//            }
-//            return false;
-//        } catch (SQLException e) {
-//            System.out.println("Objekat nije uspesno unesen u bazu!" + e.getMessage());
-//            throw e;
-//        }
-//    }
-    
     public Object pretrazi(OpstaKlasa opsti) throws SQLException{
         try {
-            String query = "SELECT * FROM " + opsti.vratiNazivKlase() + " WHERE " + opsti.vratiIdentifikator()
-                    + " = " + opsti.vratiVrednostIdentifikatora();
-            if(opsti instanceof Korisnik){
-                Korisnik korisnik = (Korisnik) opsti;
-                query = "SELECT * FROM korisnik k JOIN mesto m on (k.zipcode = m.zipcode) WHERE mail = '" + korisnik.getMail().trim() + "'";
-            }
-            System.out.println(query);
+            String query = opsti.vratiUpitZaPretragu();
             PreparedStatement st = connection.prepareStatement(query);
             ResultSet rs = st.executeQuery();
             if(rs.next()){
@@ -207,8 +131,7 @@ public class DatabaseBroker {
     
     public boolean promeni(OpstaKlasa opsti) throws SQLException{
         try {
-            String query = "UPDATE " + opsti.vratiNazivKlase() + " SET " + opsti.vratiAtrZaPromenu() +
-                    " WHERE " + opsti.vratiIdentifikator() + " = " + opsti.vratiVrednostIdentifikatora();
+            String query = opsti.vratiUpitZaIzmenu();
             PreparedStatement st = connection.prepareStatement(query);
             st.execute();
             connection.commit();
@@ -222,14 +145,7 @@ public class DatabaseBroker {
     
     public boolean obrisi(OpstaKlasa opsti) throws SQLException{
         try {
-            String query;
-            if(opsti instanceof StavkaRezervacije && ((StavkaRezervacije)opsti).getDatum() != null){
-                StavkaRezervacije st = (StavkaRezervacije) opsti;
-                query = "DELETE FROM stavka_rezervacije WHERE datum >= '" + st.getDatum() + "' AND datum < NOW()";
-            }else{
-                query = "DELETE FROM " + opsti.vratiNazivKlase() + " WHERE " +
-                        opsti.vratiIdentifikator() + " = " + opsti.vratiVrednostIdentifikatora();
-            }
+            String query = opsti.vratiUpitZaBrisanje();
             Statement st = connection.createStatement();
             st.executeUpdate(query);
             connection.commit();
@@ -282,10 +198,6 @@ public class DatabaseBroker {
                 }
                 st.executeBatch();
                 connection.commit();
-    //            Rezervacija rezervacija = stavke.get(0).getRezervacija();
-    //            rezervacija.setUkupanIznos(ukupnaCenaRezervacije);
-    //            rezervacija.setNapomena(stavke.get(0).getRezervacija().getNapomena());
-    //            promeni(rezervacija);
                 return true;
             }
             return false;
