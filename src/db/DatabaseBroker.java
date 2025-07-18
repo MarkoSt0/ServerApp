@@ -1,6 +1,7 @@
 package db;
 import domain.OpstaKlasa;
 import domain.Radnik;
+import domain.Rezervacija;
 import domain.StavkaRezervacije;
 import domain.TeniskiKlub;
 import domain.Teren;
@@ -211,6 +212,148 @@ public class DatabaseBroker {
             throw ex;
         }
     }
+    
+    public boolean izmeniStavkeZaRezervaciju(List<StavkaRezervacije> stavke) throws Exception {
+        try {
+            connection.setAutoCommit(false);
+
+            double ukupnaCena = 0;
+
+            for (StavkaRezervacije s : stavke) {
+                switch (s.getStatus()) {
+                    case NOVA:
+                        dodajStavku(s);
+                        ukupnaCena += s.getIznos();
+                        break;
+                    case IZMENJENA:
+                        izmeniStavku(s);
+                        ukupnaCena += s.getIznos();
+                        break;
+                    case OBRISANA:
+                        obrisiStavku(s);
+                        ukupnaCena -= s.getIznos();
+                        break;
+                    case NEPROMENJENA:
+                        ukupnaCena += s.getIznos();
+                        break;
+                }
+            }
+            Rezervacija r = stavke.get(0).getRezervacija();
+            r.setUkupanIznos(ukupnaCena);
+            izmeniZaglavljeRezervacije(r, connection);
+            connection.commit();
+            return true;
+        } catch (SQLException e) {
+            if (connection != null) {
+                try { 
+                    connection.rollback();
+                    return false;
+                } catch (SQLException ex) { ex.printStackTrace(); }
+            }
+            throw new Exception("Greška u transakciji: " + e.getMessage(), e);
+        }
+    }
+    
+    public boolean SacuvajRezervacijuSaStavkama(List<StavkaRezervacije> stavke) throws Exception {
+        try {
+            connection.setAutoCommit(false);
+            Rezervacija rezervacija = stavke.get(0).getRezervacija();
+            String upitRez = "INSERT INTO rezervacija (datum_rezervacije, ukupan_iznos, napomena, id_korisnik, id_klub) VALUES (?, ?, ?, ?, ?)";
+            PreparedStatement stRez = connection.prepareStatement(upitRez, Statement.RETURN_GENERATED_KEYS);
+            stRez.setDate(1, Date.valueOf(rezervacija.getDatumRezervacije()));
+            stRez.setDouble(2, rezervacija.getUkupanIznos());
+            stRez.setString(3, rezervacija.getNapomena());
+            stRez.setString(4, rezervacija.getKorisnik().getMail());
+            stRez.setLong(5, rezervacija.getTeniskiKlub().getIdKlub());
+            stRez.executeUpdate();
+
+            ResultSet rs = stRez.getGeneratedKeys();
+            if (rs.next()) {
+                long id = rs.getLong(1);
+                rezervacija.setIdRezervacija(id);
+            } else {
+                throw new SQLException("Nije moguće dobiti ID nove rezervacije.");
+            }
+            
+            int rb = 1;
+            for (StavkaRezervacije sr : stavke) {
+                sr.setRezervacija(rezervacija);
+                sr.setRb(rb++);
+                dodajStavku(sr);
+            }
+            
+            return true;
+            
+            
+        } catch (SQLException e) {
+            if (connection != null) {
+                try { 
+                    connection.rollback();
+                    return false;
+                } catch (SQLException ex) { ex.printStackTrace(); }
+            }
+            throw new Exception("Greška u transakciji: " + e.getMessage(), e);
+        }
+    }
+    
+    private void dodajStavku(StavkaRezervacije stavkaRezervacije) throws SQLException {
+        String sql = "INSERT INTO stavka_rezervacije (id_rezervacija, rb, vreme_od, vreme_do, datum, iznos, id_teren) VALUES (?,?,?,?,?,?,?)";
+        try (PreparedStatement st = connection.prepareStatement(sql)) {
+            st.setLong(1, stavkaRezervacije.getRezervacija().getIdRezervacija());
+            st.setLong(2, stavkaRezervacije.getRb());
+            st.setTime(3, Time.valueOf(stavkaRezervacije.getVremeOd()));
+            st.setTime(4, Time.valueOf(stavkaRezervacije.getVremeDo()));
+            st.setDate(5, Date.valueOf(stavkaRezervacije.getDatum()));
+            st.setDouble(6, stavkaRezervacije.getIznos());
+            st.setInt(7, stavkaRezervacije.getTeren().getIdTeren());
+            st.executeUpdate();
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    private void izmeniStavku(StavkaRezervacije stavkaRezervacije) throws SQLException {
+        String sql = "UPDATE stavka_rezervacije SET vreme_od = ?, vreme_do = ?, datum = ?, iznos = ?, id_teren = ? WHERE id_rezervacija = ? AND rb = ?";
+        try (PreparedStatement st = connection.prepareStatement(sql)) {
+            st.setTime(1, Time.valueOf(stavkaRezervacije.getVremeOd()));
+            st.setTime(2, Time.valueOf(stavkaRezervacije.getVremeDo()));
+            st.setDate(3, Date.valueOf(stavkaRezervacije.getDatum()));
+            st.setDouble(4, stavkaRezervacije.getIznos());
+            st.setInt(5, stavkaRezervacije.getTeren().getIdTeren());
+            st.setLong(6, stavkaRezervacije.getRezervacija().getIdRezervacija());
+            st.setLong(7, stavkaRezervacije.getRb());
+            st.executeUpdate();
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    private void obrisiStavku(StavkaRezervacije stavkaRezervacije) throws SQLException {
+        String sql = "DELETE FROM stavka_rezervacije WHERE id_rezervacija = ? AND rb = ?";
+        try (PreparedStatement st = connection.prepareStatement(sql)) {
+            st.setLong(1, stavkaRezervacije.getRezervacija().getIdRezervacija());
+            st.setLong(2, stavkaRezervacije.getRb());
+            st.executeUpdate();
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+    }
+    
+    private void izmeniZaglavljeRezervacije(Rezervacija r, Connection conn) throws SQLException {
+        String sql = "UPDATE rezervacija SET ukupan_iznos = ?, napomena = ? WHERE id_rezervacija = ?";
+        try (PreparedStatement st = conn.prepareStatement(sql)) {
+            st.setDouble(1, r.getUkupanIznos());
+            st.setString(2, r.getNapomena());
+            st.setLong(3, r.getIdRezervacija());
+            st.executeUpdate();
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+    }
+
+
+
 
     public List<String> vratiPredlogeZaEmail(String input) throws SQLException{
         List<String> emails = new ArrayList<>();

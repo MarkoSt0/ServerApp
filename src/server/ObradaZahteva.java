@@ -52,7 +52,9 @@ public class ObradaZahteva extends Thread{
         sender = new Sender(socket);
         while(!kraj){
             try {
+                System.out.println("Cekam zahtev...");
                 Request request = (Request) receiver.receive();
+                System.out.println("Zahtev primljen: " + request.getOperation());
                 Response response = new Response();
                 Operation operation = request.getOperation();
                 if(null != operation)switch (operation) {
@@ -140,7 +142,9 @@ public class ObradaZahteva extends Thread{
                     }case UCITAJ_STAVKE -> {
                         List<StavkaRezervacije> stavke = (List<StavkaRezervacije>) request.getArgument();
                         try {
-                            boolean result = dbb.unesiStavkeRezervacije((List<StavkaRezervacije>) stavke);
+                            System.out.println("Sistem je primio zahtev i ulazi u izmenu stavki");
+                            boolean result = dbb.izmeniStavkeZaRezervaciju((List<StavkaRezervacije>) stavke);
+//                            boolean result = dbb.unesiStavkeRezervacije((List<StavkaRezervacije>) stavke); //kreiranje
                             response.setResult(result);
                         } catch (SQLException e) {
                             response.setEx(e);
@@ -150,10 +154,10 @@ public class ObradaZahteva extends Thread{
                 }
 
             } catch (Exception ex) {
-//                    Logger.getLogger(PokretanjeServera.class.getName()).log(Level.SEVERE, null, ex);
                 System.out.println("Korisnik je napustio sistem");
                 this.forma.nemaKorisnika();
                 kraj = true;
+                ex.printStackTrace();
             }
         }
     }
