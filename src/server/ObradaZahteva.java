@@ -18,6 +18,7 @@ import java.net.Socket;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -52,9 +53,7 @@ public class ObradaZahteva extends Thread{
         sender = new Sender(socket);
         while(!kraj){
             try {
-                System.out.println("Cekam zahtev...");
                 Request request = (Request) receiver.receive();
-                System.out.println("Zahtev primljen: " + request.getOperation());
                 Response response = new Response();
                 Operation operation = request.getOperation();
                 if(null != operation)switch (operation) {
@@ -141,9 +140,11 @@ public class ObradaZahteva extends Thread{
                         sender.send(response);
                     }case UCITAJ_STAVKE -> {
                         List<StavkaRezervacije> stavke = (List<StavkaRezervacije>) request.getArgument();
+                        List<OpstaKlasa> generickaLista = new ArrayList<>();
+                        generickaLista.addAll(stavke);
                         try {
                             System.out.println("Sistem je primio zahtev i ulazi u izmenu stavki");
-                            boolean result = dbb.izmeniStavkeZaRezervaciju((List<StavkaRezervacije>) stavke);
+                            boolean result = dbb.izmeniEntitete(generickaLista);
 //                            boolean result = dbb.unesiStavkeRezervacije((List<StavkaRezervacije>) stavke); //kreiranje
                             response.setResult(result);
                         } catch (SQLException e) {
