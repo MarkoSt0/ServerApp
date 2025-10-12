@@ -5,6 +5,10 @@
 package server;
 
 import java.awt.Color;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -19,6 +23,8 @@ public class FrmServer extends javax.swing.JFrame {
         initComponents();
         lblBall1.setVisible(false);
         this.setLocationRelativeTo(null);
+        jLabel2.setVisible(false);
+        lblServer.setVisible(false);
     }
 
     /**
@@ -42,6 +48,9 @@ public class FrmServer extends javax.swing.JFrame {
         lblBall1 = new javax.swing.JLabel();
         lblBall2 = new javax.swing.JLabel();
         jSeparator1 = new javax.swing.JSeparator();
+        jMenuBar1 = new javax.swing.JMenuBar();
+        jMenu1 = new javax.swing.JMenu();
+        miKonfiguracijaBaze = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -77,24 +86,40 @@ public class FrmServer extends javax.swing.JFrame {
         lblNijePokrenut.setText("Server nije pokrenut");
 
         lblBall1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/src/slike/tennisball.png"))); // NOI18N
-        lblBall1.setMaximumSize(new java.awt.Dimension(16, 16));
-        lblBall1.setMinimumSize(new java.awt.Dimension(16, 16));
-        lblBall1.setPreferredSize(new java.awt.Dimension(16, 16));
 
         lblBall2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/slike/tennisball.png"))); // NOI18N
-        lblBall2.setMaximumSize(new java.awt.Dimension(16, 16));
-        lblBall2.setMinimumSize(new java.awt.Dimension(16, 16));
-        lblBall2.setPreferredSize(new java.awt.Dimension(16, 16));
+
+        jMenu1.setText("Konfiguracija baze");
+        jMenu1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenu1ActionPerformed(evt);
+            }
+        });
+
+        miKonfiguracijaBaze.setText("Izmeni konfiguraciju");
+        miKonfiguracijaBaze.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                miKonfiguracijaBazeActionPerformed(evt);
+            }
+        });
+        jMenu1.add(miKonfiguracijaBaze);
+
+        jMenuBar1.add(jMenu1);
+
+        setJMenuBar(jMenuBar1);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addComponent(btnZaustaviServer, javax.swing.GroupLayout.PREFERRED_SIZE, 111, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(btnPokreniServer, javax.swing.GroupLayout.PREFERRED_SIZE, 111, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(28, 28, 28))
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(145, 145, 145)
-                        .addComponent(jLabel1))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(27, 27, 27)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -112,55 +137,48 @@ public class FrmServer extends javax.swing.JFrame {
                                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                         .addComponent(lblPokrenut)
                                         .addComponent(lblNijePokrenut))
+                                    .addGap(29, 29, 29)
                                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                        .addGroup(layout.createSequentialGroup()
-                                            .addGap(29, 29, 29)
-                                            .addComponent(lblBall1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                        .addGroup(layout.createSequentialGroup()
-                                            .addGap(29, 29, 29)
-                                            .addComponent(lblBall2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))))))
-                .addContainerGap(191, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGap(0, 0, Short.MAX_VALUE)
-                .addComponent(btnZaustaviServer, javax.swing.GroupLayout.PREFERRED_SIZE, 111, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(btnPokreniServer, javax.swing.GroupLayout.PREFERRED_SIZE, 111, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(28, 28, 28))
+                                        .addComponent(lblBall1)
+                                        .addComponent(lblBall2))))))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(146, 146, 146)
+                        .addComponent(jLabel1)))
+                .addContainerGap(190, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
+                .addGap(20, 20, 20)
+                .addComponent(jLabel1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel1)
-                        .addGap(18, 18, 18)
                         .addComponent(jLabel2)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel3)
-                            .addComponent(lblKorisnik)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(lblKorisnik)
+                            .addComponent(jLabel3))
+                        .addGap(13, 13, 13))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(lblServer)
                         .addGap(28, 28, 28)))
-                .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(lblPokrenut)
-                    .addComponent(lblBall1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(lblBall1))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 22, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(btnPokreniServer)
                             .addComponent(btnZaustaviServer))
                         .addGap(21, 21, 21))
                     .addGroup(layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(lblBall2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(lblBall2)
                             .addComponent(lblNijePokrenut))
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
         );
@@ -172,7 +190,6 @@ public class FrmServer extends javax.swing.JFrame {
         if(ps == null || !ps.isAlive()){
             ps = new PokretanjeServera(this);
             ps.start();
-    //        lblServer.setForeground(Color.green);
             lblPokrenut.setBackground(Color.LIGHT_GRAY);
             lblNijePokrenut.setBackground(Color.DARK_GRAY);
             lblBall1.setVisible(true);
@@ -185,18 +202,30 @@ public class FrmServer extends javax.swing.JFrame {
     }//GEN-LAST:event_btnPokreniServerActionPerformed
 
     private void btnZaustaviServerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnZaustaviServerActionPerformed
-        if(ps != null){
-            ps.stopServer();
-            ps = null;
-//            lblServer.setForeground(Color.red);s
-            lblPokrenut.setBackground(Color.DARK_GRAY);
-            lblNijePokrenut.setBackground(Color.LIGHT_GRAY);
-            lblBall1.setVisible(false);
-            lblBall2.setVisible(true);
+        if(ps.getServerSocket() != null && ps.getServerSocket().isBound()){
+            try {
+                ps.getServerSocket().close();
+                JOptionPane.showMessageDialog(this, "Server je ugašen, gašenje programa...");
+                lblPokrenut.setBackground(Color.DARK_GRAY);
+                lblNijePokrenut.setBackground(Color.LIGHT_GRAY);
+                lblBall1.setVisible(false);
+                lblBall2.setVisible(true);
+                this.dispose();
+                System.exit(0);
+            } catch (IOException ex) {
+                Logger.getLogger(FrmServer.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
             
         
     }//GEN-LAST:event_btnZaustaviServerActionPerformed
+
+    private void jMenu1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenu1ActionPerformed
+    }//GEN-LAST:event_jMenu1ActionPerformed
+
+    private void miKonfiguracijaBazeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miKonfiguracijaBazeActionPerformed
+        new KonfiguracijaBaze(this, true).setVisible(true);
+    }//GEN-LAST:event_miKonfiguracijaBazeActionPerformed
 
     /**
      * @param args the command line arguments
@@ -238,6 +267,8 @@ public class FrmServer extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JMenu jMenu1;
+    private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JLabel lblBall1;
     private javax.swing.JLabel lblBall2;
@@ -245,6 +276,7 @@ public class FrmServer extends javax.swing.JFrame {
     private javax.swing.JLabel lblNijePokrenut;
     private javax.swing.JLabel lblPokrenut;
     private javax.swing.JLabel lblServer;
+    private javax.swing.JMenuItem miKonfiguracijaBaze;
     // End of variables declaration//GEN-END:variables
 
     void pokrenut() {

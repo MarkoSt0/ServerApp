@@ -15,7 +15,6 @@ import java.net.Socket;
 public class PokretanjeServera extends Thread{
     FrmServer s;
     ServerSocket ss = null;
-    volatile boolean pokrenuto = true;
     
     
     public PokretanjeServera(FrmServer s){
@@ -28,7 +27,7 @@ public class PokretanjeServera extends Thread{
         try {
             ss = new ServerSocket(9000);
             s.pokrenut();
-            while(pokrenuto){
+            while(!ss.isClosed()){
                 try {
                     Socket socket = ss.accept();
                     System.out.println("Klijent se povezao");
@@ -37,7 +36,7 @@ public class PokretanjeServera extends Thread{
                     ObradaZahteva o = new ObradaZahteva(socket, s);
                     o.start();
                 } catch (IOException e) {
-                    if(!pokrenuto){
+                    if(ss.isClosed()){
                         System.out.println("Greska pri prihvatanju konekcije");
                     }else{
                         System.out.println("Server socket je zatvoren!");
@@ -59,14 +58,13 @@ public class PokretanjeServera extends Thread{
             s.nemaKorisnika();
         }
     }
-    public void stopServer(){
-        pokrenuto = false;
-        try {
-            new Socket("localhost", 9000).close();
-        } catch (IOException ex) {
-            
+
+        public ServerSocket getServerSocket() {
+            return ss;
         }
-    }
-    
+
+        public void setServerSocket(ServerSocket serverSocket) {
+            this.ss = serverSocket;
+        }
     
 }
